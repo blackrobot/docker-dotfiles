@@ -16,6 +16,7 @@ RUN curl -Lo- https://bit.ly/janus-bootstrap | bash
 
 # Clone dotfiles
 RUN git clone git://github.com/blackrobot/dotfiles.git $HOME/.dotfiles
+RUN cd $HOME/.dotfiles && git submodule init && git submodule update
 
 # Symlink stuff
 RUN cd $HOME && \
