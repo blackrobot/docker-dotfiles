@@ -3,10 +3,11 @@
 FROM damon/base
 
 # Install pre-requisites
-RUN add-apt-repository -y ppa:nmi/vim-snapshots && \
-    apt-get update && \
-    apt-get install -qqy \
-      vim \
+RUN apt-get install -qqy \
+      python \
+      python-dev \
+      ruby-dev \
+      mercurial \
       zsh \
       rake \
       exuberant-ctags \
@@ -18,6 +19,28 @@ RUN add-apt-repository -y ppa:nmi/vim-snapshots && \
 # Set HOME
 ENV HOME /home
 WORKDIR /home
+
+# Compile vim
+RUN cd /tmp && \
+    hg clone https://code.google.com/p/vim/ && \
+    cd vim \
+    ./configure --with-features=huge \
+                --enable-multibyte \
+                --enable-rubyinterp \
+                --enable-pythoninterp \
+                --with-python-config-dir=/usr/lib/python2.7/config \
+                --enable-perlinterp \
+                --enable-luainterp \
+                --enable-cscope \
+                --prefix=/usr && \
+    make VIMRUNTIMEDIR=/usr/share/vim/vim74 && \
+    make install
+
+# Set vim as default
+RUN update-alternatives --install /usr/bin/editor editor /usr/bin/vim 1 && \
+    update-alternatives --set editor /usr/bin/vim && \
+    update-alternatives --install /usr/bin/vi vi /usr/bin/vim 1 && \
+    update-alternatives --set vi /usr/bin/vim
 
 # Install oh-my-zsh
 RUN git clone git://github.com/robbyrussell/oh-my-zsh.git .oh-my-zsh
