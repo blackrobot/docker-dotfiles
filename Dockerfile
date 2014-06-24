@@ -3,7 +3,17 @@
 FROM damon/base
 
 # Install pre-requisites
-RUN apt-get install -qqy vim zsh rake exuberant-ctags tmux silversearcher-ag
+RUN add-apt-repository -y ppa:nmi/vim-snapshots && \
+    apt-get update && \
+    apt-get install -qqy \
+      vim \
+      zsh \
+      rake \
+      exuberant-ctags \
+      tmux \
+      silversearcher-ag \
+      build-essential \
+      cmake
 
 # Set HOME
 ENV HOME /home
@@ -17,7 +27,9 @@ RUN curl -Lo- https://bit.ly/janus-bootstrap | bash
 
 # Clone dotfiles
 RUN git clone git://github.com/blackrobot/dotfiles.git .dotfiles
-RUN cd .dotfiles && git submodule init && git submodule update
+RUN cd .dotfiles && \
+    git submodule init && \
+    git submodule update
 
 # Symlink stuff
 RUN ln -s $HOME/.dotfiles/.gitconfig $HOME && \
@@ -28,6 +40,12 @@ RUN ln -s $HOME/.dotfiles/.gitconfig $HOME && \
     ln -s $HOME/.dotfiles/.zlogin $HOME && \
     ln -s $HOME/.dotfiles/.zshrc $HOME && \
     ln -s $HOME/.dotfiles/zsh.custom/dzj.zsh-theme $HOME/.oh-my-zsh/custom
+
+# Install YouCompleteMe
+RUN cd .dotfiles/.janus/YouCompleteMe && \
+    git submodule init && \
+    git submodule update && \
+    ./install.sh --clang-completer
 
 # Share the work volume
 VOLUME ["/workspace"]
