@@ -3,27 +3,28 @@
 FROM damon/base
 
 # Install pre-requisites
-RUN apt-get install -qqy \
+RUN apt-get install -y \
+      build-essential \
+      cmake \
+      exuberant-ctags \
+      libncurses5-dev \
+      mercurial \
       python \
       python-dev \
-      ruby-dev \
-      mercurial \
-      zsh \
       rake \
-      exuberant-ctags \
-      tmux \
+      ruby-dev \
       silversearcher-ag \
-      build-essential \
-      cmake
+      tmux \
+      zsh
 
 # Set HOME
 ENV HOME /home
 WORKDIR /home
 
 # Compile vim
-RUN cd /tmp && \
-    hg clone https://code.google.com/p/vim/ && \
-    cd vim \
+ADD https://github.com/b4winckler/vim/archive/master.tar.gz /tmp/vim-master.tar.gz
+RUN tar xfz /tmp/vim-master.tar.gz -C /tmp
+RUN cd /tmp/vim-master && \
     ./configure --with-features=huge \
                 --enable-multibyte \
                 --enable-rubyinterp \
@@ -50,9 +51,7 @@ RUN curl -Lo- https://bit.ly/janus-bootstrap | bash
 
 # Clone dotfiles
 RUN git clone git://github.com/blackrobot/dotfiles.git .dotfiles
-RUN cd .dotfiles && \
-    git submodule init && \
-    git submodule update
+RUN cd .dotfiles && git submodule update --init --recursive
 
 # Symlink stuff
 RUN ln -s $HOME/.dotfiles/.gitconfig $HOME && \
@@ -65,14 +64,15 @@ RUN ln -s $HOME/.dotfiles/.gitconfig $HOME && \
     ln -s $HOME/.dotfiles/zsh.custom/dzj.zsh-theme $HOME/.oh-my-zsh/custom
 
 # Install YouCompleteMe
-RUN cd .dotfiles/.janus/YouCompleteMe && \
-    git submodule init && \
-    git submodule update && \
-    ./install.sh --clang-completer
+RUN cd .dotfiles/.janus/YouCompleteMe && ./install.sh --clang-completer
+
+# Cleanup
+RUN apt-get -y autoremove && apt-get -y clean
+RUN rm -Rf /tmp/vim-master.tar.gz /tmp/vim-master
 
 # Share the work volume
-VOLUME ["/workspace"]
-WORKDIR /workspace
+VOLUME ["/work"]
+WORKDIR /work
 
 # Run zsh as login shell
 ENTRYPOINT ["/usr/bin/zsh"]
