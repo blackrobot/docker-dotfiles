@@ -11,6 +11,7 @@ RUN apt-get install -y \
       mercurial \
       python \
       python-dev \
+      python-pip \
       rake \
       ruby-dev \
       silversearcher-ag \
@@ -65,6 +66,9 @@ RUN ln -s $HOME/.dotfiles/.gitconfig $HOME && \
 
 # Install YouCompleteMe
 RUN cd .dotfiles/.janus/YouCompleteMe && ./install.sh --clang-completer
+
+# Install flake8 for python syntax checking
+RUN pip install flake8
 
 # Cleanup
 RUN apt-get -y autoremove && \
