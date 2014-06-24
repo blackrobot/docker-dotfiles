@@ -67,8 +67,9 @@ RUN ln -s $HOME/.dotfiles/.gitconfig $HOME && \
 RUN cd .dotfiles/.janus/YouCompleteMe && ./install.sh --clang-completer
 
 # Cleanup
-RUN apt-get -y autoremove && apt-get -y clean
-RUN rm -Rf /tmp/vim-master.tar.gz /tmp/vim-master
+RUN apt-get -y autoremove && \
+    apt-get -y clean && \
+    rm -Rf /tmp/vim-master.tar.gz /tmp/vim-master
 
 # Share the work volume
 VOLUME ["/work"]
